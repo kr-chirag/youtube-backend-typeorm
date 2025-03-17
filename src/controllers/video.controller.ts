@@ -22,7 +22,7 @@ export async function handlePostVideo(
     try {
         const { title, description } = req.body;
         const url = await uploadToCloudinary(req.file.path);
-        const video = await insertVideo(title, url, req.user, description);
+        const video = await insertVideo(title, url, req.userId, description);
         fs.unlinkSync(req.file.path);
         res.status(201).json({ status: "success", video });
     } catch (err) {
@@ -43,40 +43,53 @@ export async function handleDeleteVideo(
     res: Response
 ) {
     const videoId = Number(req.params.videoId);
-    const deletedVideo = await deleteVideo(videoId);
-    if (deletedVideo) await deleteFromCloudinary(deletedVideo.url);
-    res.status(200).json({
-        status: "success",
-        deletedVideoId: req.params.videoId,
-    });
+    const video = await getVideo(videoId);
+    if (!video || !video.url || !video.id)
+        res.status(400).json({
+            status: "failed",
+            error: "video not found",
+        });
+    else if (video.createdBy !== req.userId)
+        res.status(400).json({
+            status: "failed",
+            error: "access denied",
+        });
+    else {
+        await deleteFromCloudinary(video.url);
+        await deleteVideo(video.id);
+        res.status(200).json({
+            status: "success",
+            deletedVideoId: req.params.videoId,
+        });
+    }
 }
 export async function handlePostLike(
     req: Request<{ videoId: string }>,
     res: Response
 ) {
     const videoId = Number(req.params.videoId);
-    // const alreadyLiked = await getLike(videoId, req.userId);
-    // if (alreadyLiked) {
-    //     res.status(200).json({
-    //         status: "success",
-    //         message: "already liked",
-    //         alreadyLiked,
-    //     });
-    // } else {
-    const like = await insertLike(videoId, req.user);
-    res.status(200).json({ status: "success", like });
-    // }
+    const alreadyLiked = await getLike(videoId, req.userId);
+    if (alreadyLiked) {
+        res.status(200).json({
+            status: "success",
+            message: "already liked",
+            alreadyLiked,
+        });
+    } else {
+        const like = await insertLike(videoId, req.userId);
+        res.status(200).json({ status: "success", like });
+    }
 }
 
 export async function handleDeleteLike(
     req: Request<{ videoId: string }>,
     res: Response
 ) {
-    // const videoId = Number(req.params.videoId);
-    // await deleteLike(videoId, req.userId);
-    // res.status(200).json({
-    //     status: "success",
-    //     meaase: "like removed",
-    //     videoId: req.params.videoId,
-    // });
+    const videoId = Number(req.params.videoId);
+    await deleteLike(videoId, req.userId);
+    res.status(200).json({
+        status: "success",
+        meaase: "like removed",
+        videoId: req.params.videoId,
+    });
 }

@@ -1,6 +1,7 @@
 import {
     Column,
     Entity,
+    JoinColumn,
     ManyToOne,
     PrimaryGeneratedColumn,
     Relation,
@@ -13,14 +14,17 @@ export class Like {
     @PrimaryGeneratedColumn()
     id!: number;
 
-    @ManyToOne(() => Video, (video) => video.likes)
-    videoId: Relation<Video>;
+    @Column()
+    videoId!: number;
 
-    @ManyToOne(() => User, (user) => user.liked_videos)
-    userId: Relation<User>;
+    @Column()
+    userId!: number;
 
-    constructor(video: Video, user: User) {
-        this.videoId = video;
-        this.userId = user;
-    }
+    @ManyToOne(() => Video, (video) => video.likes, { onDelete: "CASCADE" })
+    @JoinColumn({ name: "videoId" })
+    video!: Relation<Video>;
+
+    @ManyToOne(() => User, (user) => user.liked_videos, { onDelete: "CASCADE" })
+    @JoinColumn({ name: "userId" })
+    user!: Relation<User>;
 }

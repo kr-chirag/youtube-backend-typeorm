@@ -13,7 +13,7 @@ export async function checkAuth(
         const decodedToken = await decodeToken(authToken);
         const user = await getUserByID(decodedToken.id);
         if (!user || !user.id) throw new Error("user not found");
-        req.user = user;
+        req.userId = user.id;
         next();
     } catch (error: any) {
         console.error("checkauth middleware error:", error.message);

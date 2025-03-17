@@ -8,23 +8,17 @@ export class User {
     id!: number;
 
     @Column("text")
-    name: string;
+    name!: string;
 
     @Column("text")
-    email: string;
+    email!: string;
 
     @Column("text")
-    password: string;
+    password!: string;
 
-    @OneToMany(() => Video, (video) => video.createdBy)
+    @OneToMany(() => Video, (video) => video.owner)
     videos!: Video[];
 
-    @OneToMany(() => Like, (like) => like.userId)
+    @OneToMany(() => Like, (like) => like.user)
     liked_videos!: Like[];
-
-    constructor(name: string, email: string, password: string) {
-        this.name = name;
-        this.email = email;
-        this.password = password;
-    }
 }

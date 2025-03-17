@@ -10,7 +10,7 @@ const selectOptions = {
 };
 
 export async function createUser(name: string, email: string, pass: string) {
-    const user = new User(name, email, pass);
+    const user = UserRepository.create({ name, email, password: pass });
     await UserRepository.save(user);
     const { password, ...userWithouPassword } = user;
     return userWithouPassword;
@@ -24,10 +24,29 @@ export async function getUserByEmail(email: string) {
 export async function getUserByID(id: number) {
     const user = await UserRepository.findOne({
         where: { id },
-        relations: { videos: true },
+        relations: {
+            liked_videos: {
+                video: {
+                    likes: true,
+                },
+            },
+            videos: {
+                likes: true,
+            },
+        },
         select: selectOptions,
     });
-    return user;
+    return {
+        ...user,
+        videos: user?.videos.map((video) => ({
+            ...video,
+            likes: video.likes.length,
+        })),
+        liked_videos: user?.liked_videos.map((liked_video) => ({
+            ...liked_video.video,
+            likes: liked_video.video.likes.length,
+        })),
+    };
 }
 
 export async function getAllUsers() {
