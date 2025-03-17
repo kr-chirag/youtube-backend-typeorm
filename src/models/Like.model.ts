@@ -1,6 +1,7 @@
 import {
     Column,
     Entity,
+    Index,
     JoinColumn,
     ManyToOne,
     PrimaryGeneratedColumn,
@@ -10,6 +11,7 @@ import { Video } from "./Video.model";
 import { User } from "./User.model";
 
 @Entity("likes")
+@Index(["videoId", "userId"], { unique: true })
 export class Like {
     @PrimaryGeneratedColumn()
     id!: number;

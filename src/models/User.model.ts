@@ -1,8 +1,15 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import {
+    Column,
+    Entity,
+    Index,
+    OneToMany,
+    PrimaryGeneratedColumn,
+} from "typeorm";
 import { Video } from "./Video.model";
 import { Like } from "./Like.model";
 
 @Entity("users")
+@Index(["email"], { unique: true })
 export class User {
     @PrimaryGeneratedColumn()
     id!: number;

@@ -21,7 +21,7 @@ export class Video {
     @Column("text")
     url!: string;
 
-    @Column("text")
+    @Column("text", { nullable: true })
     description?: string;
 
     @Column()

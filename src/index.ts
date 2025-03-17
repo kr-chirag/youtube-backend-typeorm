@@ -5,6 +5,7 @@ import authRouter from "./routes/auth.route";
 import userRouter from "./routes/user.route";
 import videoRouter from "./routes/video.route";
 import { connectDatabase } from "./utils/dataSource";
+import { errorhandler } from "./middlewares/error.middleware";
 
 connectDatabase();
 const app = express();
@@ -16,6 +17,8 @@ app.use(cookieParser());
 app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
 app.use("/api/video", videoRouter);
+
+app.use(errorhandler);
 
 app.listen(3000, (error?: Error) => {
     if (error) console.log(error);
